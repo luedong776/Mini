@@ -1,0 +1,42 @@
+#! /bin/zsh
+
+#Show usage
+if [ "$#" -lt 1 ]
+then
+	echo "./mini [OPTIONS]"
+	echo "OPTIONS:"
+	echo "  clear - Remove all wxapkg in wx"
+    echo "  clearsd - Remove all wxapkg in sdcard"
+    echo "  clearlocal - Remove all wxapkg in local dir"
+    echo "  dump - dump the last wxapkg"
+    echo "  dumpall - dump all wxapkg"
+	exit 
+fi
+
+case $1 in
+    clear)
+        adb shell "su -c rm -rf /data/data/com.tencent.mm/MicroMsg/2b6225bf2933ac9a741984aa13255849/appbrand/pkg"
+        ;;
+    clearsd)
+        adb shell "rm -rf /sdcard/tmp"
+        adb shell "mkdir /sdcard/tmp"
+        ;;
+    clearlocal)
+        rm -rf /Users/wht/Downloads/tmp
+        mkdir /Users/wht/Downloads/tmp
+        ;;
+    dump)
+        lastPkg=$(adb shell "su -c ls -t /data/data/com.tencent.mm/MicroMsg/2b6225bf2933ac9a741984aa13255849/appbrand/pkg | head -n 1");
+        adb shell "su -c cp /data/data/com.tencent.mm/MicroMsg/2b6225bf2933ac9a741984aa13255849/appbrand/pkg/${lastPkg} /sdcard/tmp";
+        adb pull "/sdcard/tmp/${lastPkg}" /Users/wht/Downloads/tmp
+        cd /Users/wht/Tools/wxappUnpacker/
+        ./onekey.sh ~/Downloads/tmp
+        ;;
+    dumpall)
+        adb shell "su -c cp -r /data/data/com.tencent.mm/MicroMsg/2b6225bf2933ac9a741984aa13255849/appbrand/pkg /sdcard/tmp"
+        adb pull "/sdcard/tmp/pkg" /Users/wht/Downloads/tmp
+        cd /Users/wht/Tools/wxappUnpacker/
+        ./onekey.sh ~/Downloads/tmp
+        ;;
+esac
+
